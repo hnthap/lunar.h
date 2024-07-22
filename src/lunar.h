@@ -59,7 +59,6 @@ struct Gregorian new_Gregorian(int year, int month, int day, double tz);
 struct Gregorian new_Gregorian_2(int jd, double tz);
 struct Lunar new_Lunar(int year, int month, int leap, int day, double tz);
 struct ArgumentList parse_argv(int argc, char** argv);
-double sin_degrees(double degrees);
 void stringify_Chinese_numeral(int value, char* out, int out_size);
 void stringify_Lunar_date(struct Lunar date, char* out, int out_size);
 void stringify_Lunar_day(int day, char* out, int out_size);
