@@ -24,6 +24,7 @@ gcc -Wpedantic -g src/lunar.c -o bin/lunar
 * `-m`: Month from 1 to 12, e.g. `-m 7` is July (Gregorian calendar) or the 7th month (Lunar calendar).
 * `-d`: Day of month, from 1 to 31, e.g. `-d 21` is the 21st day of the month.
 * `-l`: (Lunar calendar only) Whether the month is leap. When `-l` does not present, the month is set as not leap, otherwise leap.
+* `-lms`: (Lunar calendar only) Show the month's size ("大" and "小").
 * `-lm`: (Only when displaying Lunar calendar) Display the date in Lunar calendar in "modern notation", e.g.
   * 2024.06.16: The **16th** day of the **6th** month (**non-leap**) of the Lunar year whose New Year falls in the Gregorian year **2024**.
   * 2025.06+.01: The **1st** day of the **6th** month (**leap**) of the Lunar year whose New Year falls in the Gregorian year **2025**.
@@ -36,8 +37,13 @@ Convert date from Gregorian calendar to Lunar calendar:
 
 ```bash
 ./bin/lunar 
-# Output: "甲辰年六月（小）十六日"
+# Output: "甲辰年六月十六日"
 # Explain: Today in Lunar calendar.
+# Set "-tz 8" for Chinese calendar.
+
+./bin/lunar -lms
+# Output: "甲辰年六月（小）十六日"
+# Explain: Today in Lunar calendar -- showing month size.
 # Set "-tz 8" for Chinese calendar.
 
 ./bin/lunar -lm
@@ -46,7 +52,7 @@ Convert date from Gregorian calendar to Lunar calendar:
 # Set "-tz 8" for Chinese calendar.
 
 ./bin/lunar -y 2025 -m 7 -d 30
-# Output: "乙巳年閏六月（小）初六日" 
+# Output: "乙巳年閏六月初六日" 
 # Explain: 2025-07-30 in Gregorian calendar to Lunar.
 # Set "-tz 8" for Chinese calendar.
 
