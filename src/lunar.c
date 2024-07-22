@@ -308,7 +308,7 @@ const char* get_Chinese_digit(int value)
     case 20:
         return "廿";
     case 30:
-        return "卅";
+        return "三十";
     default:
         return "";
     }
@@ -526,10 +526,17 @@ struct ArgumentList parse_argv(int argc, char **argv)
 
 void stringify_Chinese_numeral(int value, char *out, int out_size)
 {
-    int tens = (int)floor(value / 10.0) * 10;
-    int units = value - tens;
-    sprintf_s(out, out_size, "%s%s", get_Chinese_digit(tens), 
-        get_Chinese_digit(units));
+    if (value == 20)
+    {
+        sprintf_s(out, out_size, "二十");
+    }
+    else 
+    {
+        int tens = (int)floor(value / 10.0) * 10;
+        int units = value - tens;
+        sprintf_s(out, out_size, "%s%s", get_Chinese_digit(tens), 
+            get_Chinese_digit(units));
+    }
 }
 
 void stringify_Lunar_date(struct Lunar date, char *out, int out_size)
