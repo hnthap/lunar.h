@@ -17,7 +17,7 @@ const char* g_stems[] = {
 
 int main(int argc, char** argv)
 {
-    struct ArgumentList argl = parse_argv(argc, argv);
+    struct ArgumentList argl = lunarh_parse_argv(argc, argv);
     if (argl.valid == 0)
     {
         printf("Invalid arguments\n");
@@ -25,19 +25,19 @@ int main(int argc, char** argv)
     }
     if (argl.task == LUNARH_GREGORIAN_TO_LUNAR_IN_CHINESE)
     {
-        display_Lunar_in_Chinese(argl);
+        lunarh_display_Lunar_in_Chinese(argl);
     }
     else if (argl.task == LUNARH_GREGORIAN_TO_LUNAR_IN_MODERN_NOTATION)
     {
-        display_Lunar_in_modern_notation(argl);
+        lunarh_display_Lunar_in_modern_notation(argl);
     }
     else if (argl.task == LUNARH_LUNAR_TO_GREGORIAN)
     {
-        display_Gregorian(argl);
+        lunarh_display_Gregorian(argl);
     }
     else if (argl.task == LUNARH_LUNAR_CALENDAR_OF_A_YEAR)
     {
-        display_Lunar_calendar_of_a_year(argl);
+        lunarh_display_Lunar_calendar_of_a_year(argl);
     }
     else
     {
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     }
 }
 
-struct Lunar convert_Gregorian_to_Lunar(struct Gregorian date)
+struct Lunar lunarh_convert_Gregorian_to_Lunar(struct Gregorian date)
 {
     if (!date.valid)
     {
@@ -57,29 +57,29 @@ struct Lunar convert_Gregorian_to_Lunar(struct Gregorian date)
     int jd = date.jd;
     double tz = date.tz;
     int k = (int)floor((jd - 2415021.076998695) / 29.530588853);
-    int month_start_jd = get_kth_new_moon_jd(k + 1, tz);
+    int month_start_jd = lunarh_get_kth_new_moon_jd(k + 1, tz);
     int next_month_start_jd;
     if (month_start_jd > jd)
     {
         next_month_start_jd = month_start_jd;
-        month_start_jd = get_kth_new_moon_jd(k, tz);
+        month_start_jd = lunarh_get_kth_new_moon_jd(k, tz);
     }
     else
     {
-        next_month_start_jd = get_kth_new_moon_jd(k + 2, tz);
+        next_month_start_jd = lunarh_get_kth_new_moon_jd(k + 2, tz);
     }
-    int a = get_lunar_month_11_start_jd(year, tz);
+    int a = lunarh_get_lunar_month_11_start_jd(year, tz);
     int b = a;
     int lunar_year;
     if (a >= month_start_jd)
     {
         lunar_year = year;
-        a = get_lunar_month_11_start_jd(year - 1, tz);
+        a = lunarh_get_lunar_month_11_start_jd(year - 1, tz);
     }
     else
     {
         lunar_year = year + 1;
-        b = get_lunar_month_11_start_jd(year + 1, tz);
+        b = lunarh_get_lunar_month_11_start_jd(year + 1, tz);
     }
     int lunar_day = jd - month_start_jd + 1;
     int diff = (int)floor((month_start_jd - a) / 29);
@@ -88,7 +88,7 @@ struct Lunar convert_Gregorian_to_Lunar(struct Gregorian date)
     int offset;
     if (b - a > 365)
     {
-        offset = get_leap_month_offset(a, tz);
+        offset = lunarh_get_leap_month_offset(a, tz);
         if (diff >= offset)
         {
             lunar_month = diff + 10;
@@ -119,20 +119,20 @@ struct Lunar convert_Gregorian_to_Lunar(struct Gregorian date)
     return lunar;
 }
 
-struct Gregorian convert_Lunar_to_Gregorian(struct Lunar lunar)
+struct Gregorian lunarh_convert_Lunar_to_Gregorian(struct Lunar lunar)
 {
     if (!lunar.valid)
     {
         struct Gregorian date = { .valid = 0 };
         return date;
     }
-    struct Gregorian date = new_Gregorian_2(lunar.jd, lunar.tz);
+    struct Gregorian date = lunarh_new_Gregorian_2(lunar.jd, lunar.tz);
     return date;
 }
 
-void display_Lunar_in_Chinese(struct ArgumentList argl)
+void lunarh_display_Lunar_in_Chinese(struct ArgumentList argl)
 {
-    struct Gregorian date = new_Gregorian(argl.year, argl.month, argl.day, 
+    struct Gregorian date = lunarh_new_Gregorian(argl.year, argl.month, argl.day, 
         argl.tz);
     if (!date.valid)
     {
@@ -140,15 +140,15 @@ void display_Lunar_in_Chinese(struct ArgumentList argl)
             argl.month, argl.day);
         exit(1);
     }
-    struct Lunar lunar = convert_Gregorian_to_Lunar(date);
+    struct Lunar lunar = lunarh_convert_Gregorian_to_Lunar(date);
     char out[256];
-    stringify_Lunar_date(lunar, out, 256);
+    lunarh_stringify_Lunar_date(lunar, out, 256, argl.show_month_size);
     printf("%s\n", out);
 }
 
-void display_Lunar_in_modern_notation(struct ArgumentList argl)
+void lunarh_display_Lunar_in_modern_notation(struct ArgumentList argl)
 {
-    struct Gregorian date = new_Gregorian(argl.year, argl.month, argl.day, 
+    struct Gregorian date = lunarh_new_Gregorian(argl.year, argl.month, argl.day, 
         argl.tz);
     if (!date.valid)
     {
@@ -156,14 +156,14 @@ void display_Lunar_in_modern_notation(struct ArgumentList argl)
             argl.month, argl.day);
         exit(1);
     }
-    struct Lunar lunar = convert_Gregorian_to_Lunar(date);
+    struct Lunar lunar = lunarh_convert_Gregorian_to_Lunar(date);
     printf("%04d.%02d%s.%02d\n", lunar.year, lunar.month, 
         lunar.leap ? "+" : "", lunar.day);
 }
 
-void display_Gregorian(struct ArgumentList argl)
+void lunarh_display_Gregorian(struct ArgumentList argl)
 {
-    struct Lunar lunar = new_Lunar(argl.year, argl.month, argl.leap, argl.day,
+    struct Lunar lunar = lunarh_new_Lunar(argl.year, argl.month, argl.leap, argl.day,
         argl.tz);
     if (!lunar.valid)
     {
@@ -171,11 +171,11 @@ void display_Gregorian(struct ArgumentList argl)
             argl.month, argl.leap ? "+" : "", argl.day);
         exit(1);
     }
-    struct Gregorian date = convert_Lunar_to_Gregorian(lunar);
+    struct Gregorian date = lunarh_convert_Lunar_to_Gregorian(lunar);
     printf("%04d.%02d.%02d\n", date.year, date.month, date.day);
 }
 
-void display_Lunar_calendar_of_a_year(struct ArgumentList argl)
+void lunarh_display_Lunar_calendar_of_a_year(struct ArgumentList argl)
 {
     double tz = argl.tz;
     int year = argl.year;
@@ -183,28 +183,28 @@ void display_Lunar_calendar_of_a_year(struct ArgumentList argl)
     printf("Lunar\tGregorian\n");
     for (int month = 1; month <= 12; month += 1)
     {
-        struct Lunar lunar = new_Lunar(year, month, 0, 1, tz);
+        struct Lunar lunar = lunarh_new_Lunar(year, month, 0, 1, tz);
         if (lunar.jd - last_jd > 30)
         {
-            struct Lunar lunar = new_Lunar(year, month - 1, 1, 1, tz);
-            struct Gregorian date = convert_Lunar_to_Gregorian(lunar);
+            struct Lunar lunar = lunarh_new_Lunar(year, month - 1, 1, 1, tz);
+            struct Gregorian date = lunarh_convert_Lunar_to_Gregorian(lunar);
             printf("%04d.%02d+.01\t%04d.%02d.%02d\n",
                 lunar.year, lunar.month, date.year, date.month, date.day);
         }
-        struct Gregorian date = convert_Lunar_to_Gregorian(lunar);
+        struct Gregorian date = lunarh_convert_Lunar_to_Gregorian(lunar);
         printf("%04d.%02d.01\t%04d.%02d.%02d\n",
             lunar.year, lunar.month, date.year, date.month, date.day);
         last_jd = lunar.jd;
     }
 }
 
-const char *get_branch_of_year(int year)
+const char *lunarh_get_branch_of_year(int year)
 {
     int branch = year % 12;
     return g_branches[branch < 0 ? branch + 12 : branch];
 }
 
-int get_kth_new_moon_jd(int k, double tz)
+int lunarh_get_kth_new_moon_jd(int k, double tz)
 {
     double t = k / 1236.85;
     double t2 = t * t;
@@ -244,17 +244,17 @@ int get_kth_new_moon_jd(int k, double tz)
     return (int)floor(jd + 0.5 + tz / 24);
 }
 
-int get_leap_month_offset(int new_moon_11_jd, double tz)
+int lunarh_get_leap_month_offset(int new_moon_11_jd, double tz)
 {
     int k = floor((new_moon_11_jd - 2415021.076998695) / 29.530588853 + 0.5);
     int last = 0;
     int i = 1;
-    int arc = get_sun_longitude(get_kth_new_moon_jd(k + 1, tz), tz);
+    int arc = lunarh_get_sun_longitude(lunarh_get_kth_new_moon_jd(k + 1, tz), tz);
     while (1)
     {
         last = arc;
         i += 1;
-        arc = get_sun_longitude(get_kth_new_moon_jd(k + i, tz), tz);
+        arc = lunarh_get_sun_longitude(lunarh_get_kth_new_moon_jd(k + i, tz), tz);
         if (arc == last || i >= 14)
         {
             break;
@@ -263,25 +263,25 @@ int get_leap_month_offset(int new_moon_11_jd, double tz)
     return i - 1;
 }
 
-int get_lunar_month_11_start_jd(int year, double tz)
+int lunarh_get_lunar_month_11_start_jd(int year, double tz)
 {
-    struct Gregorian date = new_Gregorian(year, 12, 31, tz);
+    struct Gregorian date = lunarh_new_Gregorian(year, 12, 31, tz);
     int offset = date.jd - 2415021;
     int k = floor(offset / 29.530588853);
-    int new_moon_jd = get_kth_new_moon_jd(k, tz);
-    int sun_longitude = get_sun_longitude(new_moon_jd, tz);
+    int new_moon_jd = lunarh_get_kth_new_moon_jd(k, tz);
+    int sun_longitude = lunarh_get_sun_longitude(new_moon_jd, tz);
     if (sun_longitude >= 9) {
-        return get_kth_new_moon_jd(k - 1, tz);
+        return lunarh_get_kth_new_moon_jd(k - 1, tz);
     }
     return new_moon_jd;
 }
 
-int is_leap_Gregorian_year(int year)
+int lunarh_is_leap_Gregorian_year(int year)
 {
     return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
 }
 
-const char* get_Chinese_digit(int value)
+const char* lunarh_get_Chinese_digit(int value)
 {
     switch (value)
     {
@@ -314,7 +314,7 @@ const char* get_Chinese_digit(int value)
     }
 }
 
-int get_num_days_of_Gregorian_month(int year, int month)
+int lunarh_get_num_days_of_Gregorian_month(int year, int month)
 {
     switch (month)
     {
@@ -324,19 +324,19 @@ int get_num_days_of_Gregorian_month(int year, int month)
     case 11:
         return 30;
     case 2:
-        return is_leap_Gregorian_year(year) ? 29 : 28;
+        return lunarh_is_leap_Gregorian_year(year) ? 29 : 28;
     default:
         return 31;
     }
 }
 
-const char *get_stem_of_year(int value)
+const char *lunarh_get_stem_of_year(int value)
 {
     int stem = value % 10;
     return g_stems[stem < 0 ? stem + 10 : stem];
 }
 
-int get_sun_longitude(int jd, double tz)
+int lunarh_get_sun_longitude(int jd, double tz)
 {
     double t = (jd - 2451545.5 - tz / 24.0) / 36525;
     double t2 = t * t;
@@ -354,18 +354,18 @@ int get_sun_longitude(int jd, double tz)
     return (int)floor(longitude / g_pi * 6);
 }
 
-int is_valid_Gregorian(int year, int month, int day)
+int lunarh_is_valid_Gregorian(int year, int month, int day)
 {
     if (month < 1 || month > 12)
     {
         return 0;
     }
-    return day >= 1 && day <= get_num_days_of_Gregorian_month(year, month);
+    return day >= 1 && day <= lunarh_get_num_days_of_Gregorian_month(year, month);
 }
 
-struct Gregorian new_Gregorian(int year, int month, int day, double tz)
+struct Gregorian lunarh_new_Gregorian(int year, int month, int day, double tz)
 {
-    if (!is_valid_Gregorian(year, month, day))
+    if (!lunarh_is_valid_Gregorian(year, month, day))
     {
         struct Gregorian date = { .valid = 0 };
         return date;
@@ -382,7 +382,7 @@ struct Gregorian new_Gregorian(int year, int month, int day, double tz)
     return date;
 }
 
-struct Gregorian new_Gregorian_2(int jd, double tz)
+struct Gregorian lunarh_new_Gregorian_2(int jd, double tz)
 {
     int a = jd + 32044;
     int b = (4 * a + 3) / 146097;
@@ -400,7 +400,7 @@ struct Gregorian new_Gregorian_2(int jd, double tz)
     return date;
 }
 
-struct Lunar new_Lunar(int year, int month, int leap, int day, double tz)
+struct Lunar lunarh_new_Lunar(int year, int month, int leap, int day, double tz)
 {
     struct Lunar lunar = { .valid = 0 };
     if (month < 1 || month > 12 || day < 1 || day > 30)
@@ -411,13 +411,13 @@ struct Lunar new_Lunar(int year, int month, int leap, int day, double tz)
     int b;
     if (month < 11)
     {
-        a = get_lunar_month_11_start_jd(year - 1, tz);
-        b = get_lunar_month_11_start_jd(year, tz);
+        a = lunarh_get_lunar_month_11_start_jd(year - 1, tz);
+        b = lunarh_get_lunar_month_11_start_jd(year, tz);
     }
     else 
     {
-        a = get_lunar_month_11_start_jd(year, tz);
-        b = get_lunar_month_11_start_jd(year + 1, tz);
+        a = lunarh_get_lunar_month_11_start_jd(year, tz);
+        b = lunarh_get_lunar_month_11_start_jd(year + 1, tz);
     }
     int offset = month - 11;
     if (offset < 0)
@@ -426,7 +426,7 @@ struct Lunar new_Lunar(int year, int month, int leap, int day, double tz)
     }
     if (b - a > 365)
     {
-        int leap_month_offset = get_leap_month_offset(a, tz);
+        int leap_month_offset = lunarh_get_leap_month_offset(a, tz);
         int leap_month = leap_month_offset - 2;
         if (leap_month < 0)
         {
@@ -442,8 +442,8 @@ struct Lunar new_Lunar(int year, int month, int leap, int day, double tz)
         }
     }
     int k = (int)floor(0.5 + (a - 2415021.076998695) / 29.530588853);
-    int month_start_jd = get_kth_new_moon_jd(k + offset, tz);
-    int next_month_start_jd = get_kth_new_moon_jd(k + offset + 1, tz);
+    int month_start_jd = lunarh_get_kth_new_moon_jd(k + offset, tz);
+    int next_month_start_jd = lunarh_get_kth_new_moon_jd(k + offset + 1, tz);
     int jd = month_start_jd + day - 1;
     lunar.year = year;
     lunar.month = month;
@@ -455,11 +455,12 @@ struct Lunar new_Lunar(int year, int month, int leap, int day, double tz)
     return lunar;
 }
 
-struct ArgumentList parse_argv(int argc, char **argv)
+struct ArgumentList lunarh_parse_argv(int argc, char **argv)
 {
     struct ArgumentList argl = { 
         .task = LUNARH_GREGORIAN_TO_LUNAR_IN_CHINESE, .tz = 7.0, .valid = 0,
-        .year = 0, .month = 0, .leap = 0, .day = 0
+        .year = 0, .month = 0, .leap = 0, .day = 0,
+        .show_month_size = 0
     };
     for (int i = 0; i < argc; i += 1)
     {
@@ -495,6 +496,10 @@ struct ArgumentList parse_argv(int argc, char **argv)
         {
             argl.task = LUNARH_GREGORIAN_TO_LUNAR_IN_MODERN_NOTATION;
         }
+        else if (strncmp("-lms", argv[i], 5) == 0)
+        {
+            argl.show_month_size = 1;
+        }
         else if (strncmp("-r", argv[i], 3) == 0)
         {
             argl.task = LUNARH_LUNAR_TO_GREGORIAN;
@@ -502,6 +507,10 @@ struct ArgumentList parse_argv(int argc, char **argv)
         else if (strncmp("-ly", argv[i], 4) == 0)
         {
             argl.task = LUNARH_LUNAR_CALENDAR_OF_A_YEAR;
+        }
+        else if (strncmp("-", argv[i], 1) == 0)
+        {
+            return argl;
         }
     }
     if (
@@ -524,7 +533,7 @@ struct ArgumentList parse_argv(int argc, char **argv)
     return argl;
 }
 
-void stringify_Chinese_numeral(int value, char *out, int out_size)
+void lunarh_stringify_Chinese_numeral(int value, char *out, int out_size)
 {
     if (value == 20)
     {
@@ -534,34 +543,35 @@ void stringify_Chinese_numeral(int value, char *out, int out_size)
     {
         int tens = (int)floor(value / 10.0) * 10;
         int units = value - tens;
-        sprintf_s(out, out_size, "%s%s", get_Chinese_digit(tens), 
-            get_Chinese_digit(units));
+        sprintf_s(out, out_size, "%s%s", lunarh_get_Chinese_digit(tens), 
+            lunarh_get_Chinese_digit(units));
     }
 }
 
-void stringify_Lunar_date(struct Lunar date, char *out, int out_size)
+void lunarh_stringify_Lunar_date(struct Lunar date, char *out, int out_size, 
+    int show_month_size)
 {
     char year[64];
-    stringify_Lunar_year(date.year, year, 64);
+    lunarh_stringify_Lunar_year(date.year, year, 64);
     char month[64];
-    stringify_Lunar_month(date.month, date.leap, month, 64);
+    lunarh_stringify_Lunar_month(date.month, date.leap, month, 64);
     char day[64];
-    stringify_Lunar_day(date.day, day, 64);
-    sprintf_s(out, out_size, "%s%s（%s）%s", year, month, 
-        date.month_size == 29 ? "小" : "大", day);
+    lunarh_stringify_Lunar_day(date.day, day, 64);
+    sprintf_s(out, out_size, "%s%s%s%s", year, month, 
+        show_month_size ? date.month_size == 29 ? "（小）" : "（大）" : "", day);
 }
 
-void stringify_Lunar_day(int day, char *out, int out_size)
+void lunarh_stringify_Lunar_day(int day, char *out, int out_size)
 {
     char s[64];
-    stringify_Chinese_numeral(day, s, 64);
+    lunarh_stringify_Chinese_numeral(day, s, 64);
     sprintf_s(out, out_size, "%s%s日", day < 11 ? "初" : "", s);
 }
 
-void stringify_Lunar_month(int month, int leap, char *out, int out_size)
+void lunarh_stringify_Lunar_month(int month, int leap, char *out, int out_size)
 {
     char s[64];
-    stringify_Chinese_numeral(month, s, 64);
+    lunarh_stringify_Chinese_numeral(month, s, 64);
     if (strncmp(s, "一", 64) == 0)
     {
         sprintf_s(s, 64, "正");
@@ -569,8 +579,8 @@ void stringify_Lunar_month(int month, int leap, char *out, int out_size)
     sprintf_s(out, out_size, "%s%s月", leap == 1 ? "閏" : "", s);
 }
 
-void stringify_Lunar_year(int year, char *out, int out_size)
+void lunarh_stringify_Lunar_year(int year, char *out, int out_size)
 {
-    sprintf_s(out, out_size, "%s%s年", get_stem_of_year(year), 
-        get_branch_of_year(year));
+    sprintf_s(out, out_size, "%s%s年", lunarh_get_stem_of_year(year), 
+        lunarh_get_branch_of_year(year));
 }
