@@ -14,7 +14,7 @@ In my case, I use gcc 8.3.0, but any other compilers that support C99 may work j
 # Change directory to the directory containing this README
 # then run this
 
-gcc -Wpedantic -g src/lunar.c -o bin/lunar
+gcc -Wpedantic -g src/lunar.c -o lunar
 ```
 
 ## Arguments
@@ -36,27 +36,27 @@ gcc -Wpedantic -g src/lunar.c -o bin/lunar
 Convert date from Gregorian calendar to Lunar calendar:
 
 ```bash
-./bin/lunar 
+./lunar 
 # Output: "甲辰年六月十六日"
 # Explain: Today in Lunar calendar.
 # Set "-tz 8" for Chinese calendar.
 
-./bin/lunar -lms
+./lunar -lms
 # Output: "甲辰年六月（小）十六日"
 # Explain: Today in Lunar calendar -- showing month size.
 # Set "-tz 8" for Chinese calendar.
 
-./bin/lunar -lm
+./lunar -lm
 # Output: "2024.06.16" 
 # Explain: Today in Lunar calendar - modern notation.
 # Set "-tz 8" for Chinese calendar.
 
-./bin/lunar -y 2025 -m 7 -d 30
+./lunar -y 2025 -m 7 -d 30
 # Output: "乙巳年閏六月初六日" 
 # Explain: 2025-07-30 in Gregorian calendar to Lunar.
 # Set "-tz 8" for Chinese calendar.
 
-./bin/lunar -y 2025 -m 7 -d 30 -lm
+./lunar -y 2025 -m 7 -d 30 -lm
 # Output: "2025.06+.06"
 # Explain: 2025-07-30 in Gregorian calendar to Lunar - modern notation.
 # Set "-tz 8" for Chinese calendar.
@@ -65,7 +65,7 @@ Convert date from Gregorian calendar to Lunar calendar:
 Convert date from Lunar calendar to Gregorian calendar:
 
 ```bash
-./bin/lunar -r -y 2025 -m 6 -l -d 6
+./lunar -r -y 2025 -m 6 -l -d 6
 # Output: 2025.07.30
 # Explain: Lunar date 2025.06+.06 is Gregorian date 2025.07.30 in time zone UTC+07:00 (Vietnamese calendar).
 # Set "-tz 8" for Chinese calendar.
@@ -74,7 +74,7 @@ Convert date from Lunar calendar to Gregorian calendar:
 List first days of all months in a Lunar year with their equivalent Gregorian dates:
 
 ```bash
-./bin/lunar -ly -y 2025            
+./lunar -ly -y 2025            
 # Output:
 # Lunar   Gregorian
 # 2025.01.01      2025.01.29
